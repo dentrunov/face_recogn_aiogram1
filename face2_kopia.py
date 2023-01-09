@@ -63,16 +63,25 @@ while True:
                 #определяем дату
                 today = datetime.now()
                 #пишем в БД
-                cur.execute('INSERT INTO  attend3 (att_id, userid, date) VALUES (?, ?, ?) ;', (bbbb, id, today))
-                bbbb += 1
-                conn.commit()
+                #проверка, есть ли ужее запись с этим пользователем на этот день (вдруг в id не было)
+                try:
+                    cur.execute('SELECT date FROM attend3 WHERE userid=? ORDER BY date DESC LIMIT 1;', (id,))
+                    dt = cur.fetchone()[0][:11]
+                    dn = str(today)[:11]
+                    if dt == dn:
+                        continue
+
+                except:
+                    cur.execute('INSERT INTO attend3 (att_id, userid, date) VALUES (?, ?, ?) ;', (bbbb, id, today))
+                    bbbb += 1
+                    conn.commit()
             name = names[id]
+            # это можно убрать
             print(name, 'пришел')
             print(coming_list)
-            confidence = "  {0}%".format(round(100 - confidence))
         else:
             name = "unknown"
-            confidence = "  {0}%".format(round(100 - confidence))
+        confidence = "  {0}%".format(round(100 - confidence))
 
         cv2.putText(img, str(name), (x + 5, y - 5), font, 1, (255, 255, 255), 2)
         cv2.putText(img, str(confidence), (x + 5, y + h - 5), font, 1, (255, 255, 0), 1)
