@@ -18,7 +18,7 @@ async def mess():
     conn = sqlite3.connect('FACES.db')
     cur = conn.cursor()
     # за какое время нужен отчет о пришедших
-    DELTA_TIME = 6
+    DELTA_TIME = 2
     # определяем разницу во времени с текущего времени
     delta = datetime.now() - timedelta(hours=DELTA_TIME)
     # делаем выборку
@@ -28,13 +28,20 @@ async def mess():
                      date>? AND date <?;''', (delta, datetime.now()))
     m = list(map(lambda x: x[0] + ': ' + datetime.strptime(x[1], '%Y-%m-%d %H:%M:%S.%f').strftime("%d.%m.%Y, %H:%M:%S"), cur.fetchall()))
     #m = cur.fetchall()
-    print(m)
+    #print(m)
+    #TODO Добавить отправку отсутствующих
+    cur.execute('''SELECT name FROM faces 
+                    WHERE NOT EXISTS 
+                    SELECT userid FROM attend3
+                    WHERE date>? AND date <?
+                    ;''', (delta, datetime.now()))
+    #Сделать для нескольких пользователей - получателей
     for user in users:
         message = '\n'.join(m)
         await bot.send_message(user, message)
 
 async def scheduler():
-    #aioschedule.every().day.at("17:00").do(mess)
+    #aioschedule.every().day.at("10:00").do(mess)
     aioschedule.every(1).minutes.do(mess)
     while True:
         await aioschedule.run_pending()
