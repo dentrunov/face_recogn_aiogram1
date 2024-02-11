@@ -19,9 +19,10 @@ def getImagesAndLabels(path):
         id = int(os.path.split(imagePath)[-1].split(".")[1])
         ids.append(id)
     return face,ids
-path='face/'
-faces,ids = getImagesAndLabels(path)
-# Тренируем train(данные, id)
-recognizer.train(faces, np.array(ids))
-# Сохраняем результат
-recognizer.write('face.yml')
+def recong_start():
+    path='face/'
+    faces,ids = getImagesAndLabels(path)
+    # Тренируем train(данные, id)
+    recognizer.train(faces, np.array(ids))
+    # Сохраняем результат
+    recognizer.write('face.yml')
